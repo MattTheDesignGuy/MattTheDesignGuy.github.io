@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import harkMedical from '../assets/clients/hark-medical.png'
 import wrenTales from '../assets/clients/wren-tales-publishing.png'
 import mcdonaldUpton from '../assets/clients/mcdonald-upton.png'
@@ -72,38 +73,71 @@ const projects: Project[] = [
   },
 ]
 
+function useReveal<T extends Element>() {
+  const ref = useRef<T | null>(null)
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const node = ref.current
+    if (!node) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -50px 0px' }
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
+  return { ref, visible }
+}
+
+function ProjectTile({ project, index }: { project: Project; index: number }) {
+  const { ref, visible } = useReveal<HTMLAnchorElement>()
+  return (
+    <a
+      ref={ref}
+      href={project.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{ transitionDelay: visible ? `${(index % 3) * 80}ms` : '0ms' }}
+      className={`group relative rounded-2xl overflow-hidden border border-white/10 hover:border-brand-purple/50 bg-brand-dark/40 transition-[opacity,transform,border-color,scale] duration-700 ease-out hover:scale-[1.02] ${
+        visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+      }`}
+    >
+      <div className="aspect-video bg-brand-navy/60 flex items-center justify-center overflow-hidden">
+        {project.image ? (
+          <img
+            src={project.image}
+            alt={`${project.name} website screenshot`}
+            loading="lazy"
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <span className="text-brand-gray text-sm">Screenshot coming soon</span>
+        )}
+      </div>
+      <div className="p-5">
+        <h3 className="font-semibold text-lg">{project.name}</h3>
+        <p className="text-brand-gray text-sm mt-1">{project.description}</p>
+      </div>
+      <div className="absolute inset-0 bg-brand-purple/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+    </a>
+  )
+}
+
 export default function Gallery() {
   return (
     <section id="portfolio" className="py-24 px-6 scroll-mt-16">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">Recent work</h2>
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">Portfolio</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project) => (
-            <a
-              key={project.name}
-              href={project.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative rounded-2xl overflow-hidden border border-white/10 hover:border-brand-purple/50 transition-all hover:scale-[1.02] bg-brand-dark/40"
-            >
-              <div className="aspect-video bg-brand-navy/60 flex items-center justify-center overflow-hidden">
-                {project.image ? (
-                  <img
-                    src={project.image}
-                    alt={`${project.name} website screenshot`}
-                    loading="lazy"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="text-brand-gray text-sm">Screenshot coming soon</span>
-                )}
-              </div>
-              <div className="p-5">
-                <h3 className="font-semibold text-lg">{project.name}</h3>
-                <p className="text-brand-gray text-sm mt-1">{project.description}</p>
-              </div>
-              <div className="absolute inset-0 bg-brand-purple/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-            </a>
+          {projects.map((project, i) => (
+            <ProjectTile key={project.name} project={project} index={i} />
           ))}
         </div>
       </div>
