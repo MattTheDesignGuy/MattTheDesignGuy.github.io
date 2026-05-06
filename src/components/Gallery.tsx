@@ -20,7 +20,7 @@ const projects: Project[] = [
   {
     name: 'A&C Landmark',
     description: 'Law firm',
-    url: '#',
+    url: 'https://aclandmark.thedesignguy.com.au/',
     image: acLandmark,
   },
   {
@@ -32,13 +32,13 @@ const projects: Project[] = [
   {
     name: 'Afterhours',
     description: 'Retreats & events',
-    url: '#',
+    url: 'https://afterhourscamp.com.au/',
     image: afterhours,
   },
   {
     name: 'BtB Capital',
     description: 'Capital & investment',
-    url: '#',
+    url: 'http://btb-capital.thedesignguy.com.au/',
     image: btbCapital,
   },
   {
